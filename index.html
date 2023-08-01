@@ -8,6 +8,7 @@
 </head>
 <body>
     <canvas id="c"></canvas>
+    <div>R para volver a 0,0 | F para aparecer/desaparecer figuras | A para aparecer/desaparecer mapa | G para aparecer/desaparecer grid</div>
 
     <style>
 
@@ -21,6 +22,7 @@
             min-height: 100vh;
             display: grid;
             place-items: center;
+            overflow: hidden;
         }
 
         #c{
@@ -30,6 +32,18 @@
         #c.grabbing{
             cursor: grabbing;
         }
+
+        div{
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            --_padding : 1rem;
+            color: black;
+            position: absolute;
+            bottom: var(--_padding);
+            left: var(--_padding);
+            transition: color .2s;
+            font-size: .8rem;
+        }
+
 
     </style>
 </body>
