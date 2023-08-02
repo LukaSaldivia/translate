@@ -4,8 +4,8 @@ const c = document.getElementById('c')
 let ctx = c.getContext('2d')
 
 let sizes = {
-    w : window.innerWidth / 1.2,
-    h : window.innerHeight / 1.2
+    w : window.innerWidth ,
+    h : window.innerHeight 
 }
 
 let mouse = {
@@ -32,6 +32,8 @@ let translated = {
     }
 }
 
+let referencePoints = [{x : 0, y: 0}]
+
 let ARG = new Image
 ARG.src = `argentina.jpg`
 
@@ -47,7 +49,6 @@ ctx.fillRect(0,0,sizes.w,sizes.h)
 
 
 // drawGrid()
-
 loop()
 
 
@@ -62,22 +63,25 @@ function drawGrid(width,color,grosor) {
 
 // Verticales
 ctx.beginPath()
-    Array(I).fill().forEach((_,i)=>{
-        ctx.moveTo(width*i - width*Math.ceil(translated.x / width),-translated.y-width)
-        ctx.lineTo(width*i - width*Math.ceil(translated.x / width),sizes.h-translated.y) 
-    })
-    ctx.closePath()
-    
-    I = Math.ceil(sizes.h/width)+10
+Array(I).fill().forEach((_,i)=>{
+    ctx.moveTo(width*i - width*Math.ceil(translated.x / width),-translated.y-width)
+    ctx.lineTo(width*i - width*Math.ceil(translated.x / width),sizes.h-translated.y) 
+})
+ctx.closePath()
+ctx.stroke()
 
-    
+I = Math.ceil(sizes.h/width)+10
+
+
 // Horizontales
-    Array(I).fill().forEach((_,i)=>{
-        ctx.moveTo(-translated.x-width,width*i - width*Math.ceil(translated.y / width)) 
-        ctx.lineTo(sizes.w-translated.x+width,width*i - width*Math.ceil(translated.y / width))
-    })
+ctx.beginPath()
+Array(I).fill().forEach((_,i)=>{
+    ctx.moveTo(-translated.x-width,width*i - width*Math.ceil(translated.y / width)) 
+    ctx.lineTo(sizes.w-translated.x+width,width*i - width*Math.ceil(translated.y / width))
+})
+ctx.closePath()
 
-    ctx.stroke()
+ctx.stroke()
 
 
 }
@@ -91,7 +95,7 @@ function loop() {
     translated.update()
 
     
-    ctx.fillStyle = '#222222'
+    ctx.fillStyle = '#222'
     ctx.fillRect(-translated.x,-translated.y,sizes.w,sizes.h)
     ctx.translate(-translated.x + mouse.Dx + (mouse.isHolding ? mouse.dx : 0),-translated.y + mouse.Dy + (mouse.isHolding ? mouse.dy : 0))
     
@@ -108,13 +112,13 @@ function loop() {
     ctx.fillStyle = '#333'
     ctx.fillRect(-200,-130,450,380)
     
-    ctx.fillStyle = 'red'
+    ctx.fillStyle = '#824'
     ctx.fillRect(-100,-100,130,130)
     
-    ctx.fillStyle = 'yellow'
+    // ctx.fillStyle = '#f40'
     ctx.fillRect(50,-90,30,30)
     
-    ctx.fillStyle = 'blue'
+    ctx.fillStyle = '#337'
     ctx.fillRect(200,190,30,30)
     
     }
@@ -123,6 +127,9 @@ function loop() {
     }
     
 
+    referencePoints.forEach(e => {
+        setReferencePoint(e.x,e.y)
+    })
 
     
     
@@ -132,6 +139,13 @@ function loop() {
 
 c.addEventListener('mousedown', (e)=>{
     if (e.button === 0) {
+
+        if(e.shiftKey){
+            referencePoints.push({x: -translated.x + e.clientX,
+            y : -translated.y + e.clientY})
+        }else{
+
+        
         let C = c.getBoundingClientRect();
         if (mouse.ox === null && mouse.oy === null) {
             mouse.ox = e.clientX - Math.floor(C.left)
@@ -144,6 +158,7 @@ c.addEventListener('mousedown', (e)=>{
         mouse.isHolding = true
         
         c.classList.add('grabbing')
+    }
 
     }
 })
@@ -175,7 +190,8 @@ document.addEventListener('keypress',({code}) => {
         KeyR : ()=>{mouse.Dx += -mouse.Dx,
                     mouse.Dy += -mouse.Dy},
         KeyF : ()=>{MOSTRAR_FIG = !MOSTRAR_FIG},
-        KeyG : ()=>{MOSTRAR_GRID = !MOSTRAR_GRID}
+        KeyG : ()=>{MOSTRAR_GRID = !MOSTRAR_GRID},
+        KeyD : ()=>{referencePoints = [{x : 0, y: 0}]},
     }
 
     ACTIONS[code]()
@@ -186,11 +202,11 @@ window.addEventListener('resize',()=>{
     sizes.w = window.innerWidth
     sizes.h = window.innerHeight
 
-    c.width = sizes.w / 1.2
-    c.height = sizes.h / 1.2
+    c.width = sizes.w 
+    c.height = sizes.h 
 })
 
-document.addEventListener('touchstart',(e)=>{
+c.addEventListener('touchstart',(e)=>{
     let C = c.getBoundingClientRect();
         if (mouse.ox === null && mouse.oy === null) {
             mouse.ox = e.touches[0].clientX - Math.floor(C.left)
@@ -238,4 +254,20 @@ function cancelHold() {
     mouse.dy = 0
 
     c.classList.remove('grabbing')
+}
+
+c.addEventListener('dblclick', (e)=>{
+    referencePoints.push({x: -translated.x + e.clientX,
+        y : -translated.y + e.clientY})
+})
+
+function setReferencePoint(x,y) {
+    ctx.fillStyle = '#fa0'
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, 2 * Math.PI);
+    ctx.fill()
+    ctx.closePath()
+
+    ctx.font = "12px Arial";
+    ctx.fillText(`(${x} , ${y})`, x + 8, y - 8);
 }
