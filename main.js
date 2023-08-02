@@ -257,8 +257,8 @@ function cancelHold() {
 }
 
 c.addEventListener('dblclick', (e)=>{
-    referencePoints.push({x: -translated.x + e.clientX,
-        y : -translated.y + e.clientY})
+    referencePoints.push({x: Math.floor(-translated.x + e.clientX),
+        y : Math.floor(-translated.y + e.clientY)})
 })
 
 function setReferencePoint(x,y) {
